@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+
 #include "FPSAIGuard.generated.h"
 
 class UPawnSensingComponent;
@@ -11,9 +12,9 @@ class UPawnSensingComponent;
 UENUM(BlueprintType)
 enum class EAIState : uint8
 {
-    Idle,
-    Suspicious,
-    Alerted,
+	Idle,
+	Suspicious,
+	Alerted,
 };
 
 UCLASS()
@@ -29,28 +30,32 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-    UPROPERTY(VisibleAnywhere, Category = "Components")
-    UPawnSensingComponent* PawnSensingComp;
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	UPawnSensingComponent* PawnSensingComp;
 
-    UFUNCTION()
-    void OnPawnSeen(APawn* SeenPawn);
+	UFUNCTION()
+	void OnPawnSeen(APawn* SeenPawn);
 
-    UFUNCTION()
-    void OnNoiseHeard(APawn* NoiseInstigator, const FVector& Location, float Volume);
+	UFUNCTION()
+	void OnNoiseHeard(APawn* NoiseInstigator, const FVector& Location, float Volume);
 
-    FRotator OriginalRotation;
+	FRotator OriginalRotation;
 
-    UFUNCTION()
-    void ResetOrientation();
+	UFUNCTION()
+	void ResetOrientation();
 
-    FTimerHandle TimerHandle_ResetOrientation;
+	FTimerHandle TimerHandle_ResetOrientation;
 
-    EAIState GuardState;
+	UPROPERTY(ReplicatedUsing=OnRep_GuardState)
+	EAIState GuardState;
 
-    void SetGuardState(EAIState NewState);
+	UFUNCTION()
+	void OnRep_GuardState();
 
-    UFUNCTION(BlueprintImplementableEvent, Category = "AI")
-    void OnStateChanged(EAIState NewState);
+	void SetGuardState(EAIState NewState);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "AI")
+	void OnStateChanged(EAIState NewState);
 
 public:
 	// Called every frame

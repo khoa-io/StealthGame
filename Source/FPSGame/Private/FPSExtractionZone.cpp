@@ -42,7 +42,8 @@ void AFPSExtractionZone::HandleOverlap(UPrimitiveComponent* OverlappedComponent,
 	if (MyPawn->bIsCarryingObjective)
 	{
 		AFPSGameMode* GM = Cast<AFPSGameMode>(GetWorld()->GetAuthGameMode());
-		if (GM)
+		// The Game Mode is not replicated to any remote clients that join in a multiplayer game; it exists only on the server
+		if (GM) // This check always fails on client
 		{
 			GM->CompleteMission(MyPawn, true);
 		}

@@ -32,6 +32,9 @@ AFPSProjectile::AFPSProjectile()
 
 	// Die after 3 seconds by default
 	InitialLifeSpan = 3.0f;
+
+	SetReplicates(true);
+	SetReplicateMovement(true);
 }
 
 void AFPSProjectile::OnHit(
@@ -41,12 +44,15 @@ void AFPSProjectile::OnHit(
 	if ((OtherActor != NULL) && (OtherActor != this) && (OtherComp != NULL) && OtherComp->IsSimulatingPhysics())
 	{
 		OtherComp->AddImpulseAtLocation(GetVelocity() * 100.0f, GetActorLocation());
-
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionFX, GetActorLocation());
 	}
 
-	// Instigator is now private. Use GetInstigator() instead.
-	MakeNoise(1.0f, GetInstigator());
+	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionFX, GetActorLocation());
 
-	Destroy();
+	// Role is now private. Use GetLocalRole() instead
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		// Instigator is now private. Use GetInstigator() instead.
+		MakeNoise(1.0f, GetInstigator());
+		Destroy();
+	}
 }

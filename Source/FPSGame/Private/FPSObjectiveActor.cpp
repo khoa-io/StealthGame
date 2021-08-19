@@ -4,13 +4,13 @@
 
 #include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
-#include "Kismet/GameplayStatics.h"
 #include "FPSCharacter.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AFPSObjectiveActor::AFPSObjectiveActor()
 {
-    MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComp"));
+	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComp"));
 	MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	RootComponent = MeshComp;
 
@@ -19,6 +19,8 @@ AFPSObjectiveActor::AFPSObjectiveActor()
 	SphereComp->SetCollisionResponseToAllChannels(ECR_Ignore);
 	SphereComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 	SphereComp->SetupAttachment(MeshComp);
+
+	SetReplicates(true);
 }
 
 // Called when the game starts or when spawned
@@ -26,7 +28,7 @@ void AFPSObjectiveActor::BeginPlay()
 {
 	Super::BeginPlay();
 
-    PlayEffects();
+	PlayEffects();
 }
 
 void AFPSObjectiveActor::PlayEffects()
@@ -36,15 +38,18 @@ void AFPSObjectiveActor::PlayEffects()
 
 void AFPSObjectiveActor::NotifyActorBeginOverlap(AActor* OtherActor)
 {
-    Super::NotifyActorBeginOverlap(OtherActor);
+	Super::NotifyActorBeginOverlap(OtherActor);
 
-    PlayEffects();
+	PlayEffects();
 
-    AFPSCharacter* MyCharacter = Cast<AFPSCharacter>(OtherActor);
-    if (MyCharacter)
-    {
-        MyCharacter->bIsCarryingObjective = true;
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		AFPSCharacter* MyCharacter = Cast<AFPSCharacter>(OtherActor);
+		if (MyCharacter)
+		{
+			MyCharacter->bIsCarryingObjective = true;
 
-        Destroy();
-    }
+			Destroy();
+		}
+	}
 }
